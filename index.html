@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chaos in Berlin — The Full Workbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d0d0d;--paper:#f7f3ec;--cream:#ede8df;--gold:#b8860b;--gold-light:#d4a017;--red:#8b1a1a;--green:#1a5c2a;--grey:#6b6560;--line:#d4cfc7}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh}
+.masthead{background:var(--ink);color:var(--paper);padding:40px 48px 32px;position:relative;overflow:hidden}
+.masthead::before{content:'CHAOS IN BERLIN';position:absolute;font-family:'Playfair Display',serif;font-size:9rem;font-weight:700;color:rgba(255,255,255,0.03);top:-10px;left:-10px;white-space:nowrap;letter-spacing:-4px;pointer-events:none}
+.masthead-inner{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-end}
+.title-block h1{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:8px}
+.title-block h1 em{font-style:italic;color:var(--gold-light)}
+.title-block p{font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:3px;color:#888;text-transform:uppercase}
+.progress-block{text-align:right}
+.progress-label{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:6px}
+.progress-bar-wrap{width:160px;height:2px;background:#333}
+.progress-bar-fill{height:100%;background:var(--gold-light);transition:width 0.4s}
+.progress-count{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--gold-light);margin-top:5px}
+.day-nav{background:var(--cream);border-bottom:1px solid var(--line);padding:0 48px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.day-nav::-webkit-scrollbar{display:none}
+.day-tab{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;padding:14px 16px;border:none;background:transparent;color:var(--grey);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap}
+.day-tab:hover{color:var(--ink)}
+.day-tab.active{color:var(--ink);border-bottom-color:var(--gold);font-weight:500}
+.content{max-width:860px;margin:0 auto;padding:40px 48px 80px}
+.day-panel{display:none}
+.day-panel.active{display:block}
+.story-card{background:var(--ink);color:var(--paper);padding:20px 24px;margin-bottom:36px;border-left:3px solid var(--gold)}
+.story-label{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:3px;color:var(--gold-light);text-transform:uppercase;margin-bottom:8px}
+.story-text{font-family:'Playfair Display',serif;font-size:0.92rem;font-style:italic;line-height:1.7;color:#ccc}
+.exercise{margin-bottom:36px}
+.exercise-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.exercise-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700}
+.exercise-tag{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;color:var(--grey);text-transform:uppercase;padding:3px 8px;border:1px solid var(--line);margin-top:2px}
+.hint-box{background:#f0ede6;border-left:2px solid var(--gold);padding:9px 14px;margin-bottom:16px;font-size:0.8rem;color:var(--grey);font-family:'DM Mono',monospace;line-height:1.6}
+.hint-label{font-weight:500;color:var(--gold);display:block;margin-bottom:2px;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase}
+.q-row{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;margin-bottom:14px;padding:12px 0;border-bottom:1px solid #ede8df}
+.q-row:last-child{border-bottom:none}
+.q-num{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--grey);padding-top:9px;font-weight:500}
+.q-prompt{font-size:0.88rem;line-height:1.5;margin-bottom:7px;color:var(--ink)}
+.q-prompt em{font-style:italic;color:var(--gold);font-family:'Playfair Display',serif}
+.q-prompt strong{font-weight:500;color:var(--red)}
+.answer-field{width:100%;border:none;border-bottom:1.5px solid var(--line);background:transparent;font-family:'DM Mono',monospace;font-size:0.86rem;color:var(--ink);padding:7px 4px;outline:none;transition:border-color 0.2s}
+.answer-field:focus{border-bottom-color:var(--gold)}
+.answer-field.correct{border-bottom-color:var(--green);background:rgba(26,92,42,0.04)}
+.answer-field.wrong{border-bottom-color:var(--red);background:rgba(139,26,26,0.04)}
+.translate-area{width:100%;border:none;border-bottom:1.5px solid var(--line);background:transparent;font-family:'DM Mono',monospace;font-size:0.86rem;color:var(--ink);padding:7px 4px;outline:none;resize:vertical;min-height:60px;transition:border-color 0.2s}
+.translate-area:focus{border-bottom-color:var(--gold)}
+.translate-area.correct{border-bottom-color:var(--green);background:rgba(26,92,42,0.04)}
+.translate-area.wrong{border-bottom-color:var(--red);background:rgba(139,26,26,0.04)}
+.inline-feedback{font-family:'DM Mono',monospace;font-size:0.7rem;margin-top:3px;display:none;line-height:1.5}
+.inline-feedback.show{display:block}
+.inline-feedback.correct-fb{color:var(--green)}
+.inline-feedback.wrong-fb{color:var(--red)}
+.choice-row{display:flex;gap:7px;margin-top:6px;flex-wrap:wrap}
+.choice-btn{font-family:'DM Mono',monospace;font-size:0.72rem;padding:5px 12px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--grey);transition:all 0.15s;letter-spacing:1px}
+.choice-btn:hover{border-color:var(--gold);color:var(--ink)}
+.choice-btn.selected{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.choice-btn.correct-choice{background:var(--green);color:white;border-color:var(--green)}
+.choice-btn.wrong-choice{background:var(--red);color:white;border-color:var(--red)}
+.verdict-btns{display:flex;gap:7px;margin-top:6px}
+.verdict-btn{font-family:'DM Mono',monospace;font-size:0.68rem;padding:5px 11px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--grey);transition:all 0.15s;letter-spacing:1px}
+.verdict-btn:hover{border-color:var(--gold)}
+.verdict-btn.sel-correct{background:var(--green);color:white;border-color:var(--green)}
+.verdict-btn.sel-wrong{background:var(--red);color:white;border-color:var(--red)}
+.exercise-actions{display:flex;gap:10px;margin-top:16px}
+.btn{font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;padding:11px 22px;border:none;cursor:pointer;transition:all 0.2s}
+.btn-check{background:var(--ink);color:var(--paper)}
+.btn-check:hover{background:#333}
+.btn-reset{background:transparent;color:var(--grey);border:1px solid var(--line)}
+.btn-reset:hover{border-color:var(--ink);color:var(--ink)}
+.ex-score{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--grey);padding:10px 0;display:none}
+.ex-score.show{display:block}
+.day-summary{background:var(--ink);color:var(--paper);padding:24px 28px;margin-top:40px;display:none}
+.day-summary.show{display:block}
+.summary-title{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:6px}
+.summary-score{font-family:'DM Mono',monospace;font-size:1.8rem;color:var(--gold-light);margin:12px 0 6px}
+.summary-verdict{font-size:0.83rem;color:#aaa;line-height:1.7;font-weight:300}
+.day-grade-btn{margin-top:36px;font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;padding:13px 28px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-weight:500}
+.day-grade-btn:hover{background:var(--gold-light)}
+@media(max-width:600px){.masthead,.content{padding-left:20px;padding-right:20px}.masthead-inner{flex-direction:column;gap:16px;align-items:flex-start}.title-block h1{font-size:2rem}.day-nav{padding:0 20px}.progress-block{text-align:left}.progress-bar-wrap{width:130px}}
+</style>
+</head>
+<body>
+<div class="masthead">
+<div class="masthead-inner">
+<div class="title-block">
+<h1>Chaos in <em>Berlin</em></h1>
+<p>The Full Interactive Workbook &nbsp;·&nbsp; Leon & Felix Edition &nbsp;·&nbsp; 14 Days</p>
+</div>
+<div class="progress-block">
+<div class="progress-label">Overall Progress</div>
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="global-progress" style="width:0%"></div></div>
+<div class="progress-count" id="global-count">0 / 0 answered</div>
+</div>
+</div>
+</div>
+
+<div class="day-nav">
+<button class="day-tab active" onclick="switchDay(1,this)">Day 1</button>
+<button class="day-tab" onclick="switchDay(2,this)">Day 2</button>
+<button class="day-tab" onclick="switchDay(3,this)">Day 3</button>
+<button class="day-tab" onclick="switchDay(4,this)">Day 4</button>
+<button class="day-tab" onclick="switchDay(5,this)">Day 5</button>
+<button class="day-tab" onclick="switchDay(6,this)">Day 6</button>
+<button class="day-tab" onclick="switchDay(7,this)">Day 7</button>
+<button class="day-tab" onclick="switchDay(8,this)">Day 8</button>
+<button class="day-tab" onclick="switchDay(9,this)">Day 9</button>
+<button class="day-tab" onclick="switchDay(10,this)">Day 10</button>
+<button class="day-tab" onclick="switchDay(11,this)">Day 11</button>
+<button class="day-tab" onclick="switchDay(12,this)">Day 12</button>
+<button class="day-tab" onclick="switchDay(13,this)">Day 13</button>
+<button class="day-tab" onclick="switchDay(14,this)">Day 14</button>
+</div>
+
+<div class="content">
+
+<!-- DAY 1 -->
+<div class="day-panel active" id="day-1">
+<div class="story-card"><div class="story-label">📖 Story So Far — Day 1</div><div class="story-text">Leon and Felix are neighbours in Berlin. They've already had their first argument — about noise, a misdelivered package, and a cup of coffee that was NOT shared.</div></div>
+
+<div class="exercise" id="ex-1A">
+<div class="exercise-header"><div class="exercise-title">1A — Reorder the Words</div><div class="exercise-tag">Verb in Slot 2</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>The verb ALWAYS goes in position 2 — not word 2, SLOT 2.</div>
+<div class="questions" data-ex="1A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>schläft / heute / Leon / lange</em> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="leon schläft heute lange|heute schläft leon lange|leon schlaft heute lange"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>kauft / im Supermarkt / Felix / Kaffee</em> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="felix kauft im supermarkt kaffee|felix kauft kaffee im supermarkt|im supermarkt kauft felix kaffee"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Deutsch / lernt / jeden Tag / Leon</em> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="leon lernt jeden tag deutsch|jeden tag lernt leon deutsch"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>fahre / nach Berlin / morgen / ich</em> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="ich fahre morgen nach berlin|morgen fahre ich nach berlin"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>trinkt / Wasser / immer / Felix</em> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="felix trinkt immer wasser|immer trinkt felix wasser"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('1A')">Check</button><button class="btn btn-reset" onclick="resetEx('1A')">Reset</button></div>
+<div class="ex-score" id="score-1A"></div>
+</div>
+
+<div class="exercise" id="ex-1B">
+<div class="exercise-header"><div class="exercise-title">1B — Time Word First (Inversion)</div><div class="exercise-tag">Inversion Rule</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>When a time word takes slot 1, the SUBJECT jumps BEHIND the verb.</div>
+<div class="questions" data-ex="1B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon geht morgen ins Kino. <strong>Put 'morgen' first</strong> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="morgen geht leon ins kino"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Er schläft manchmal am Nachmittag. <strong>Put 'manchmal' first</strong> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="manchmal schläft er am nachmittag|manchmal schlaft er am nachmittag"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Wir fahren nächste Woche nach Wien. <strong>Put 'nächste Woche' first</strong> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="nächste woche fahren wir nach wien|nachste woche fahren wir nach wien"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Felix arbeitet abends im Büro. <strong>Put 'abends' first</strong> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="abends arbeitet felix im büro|abends arbeitet felix im buro"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Leon spielt jeden Morgen Gitarre. <strong>Put 'jeden Morgen' first</strong> →</div><input class="answer-field" type="text" placeholder="Your answer..." data-answer="jeden morgen spielt leon gitarre"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('1B')">Check</button><button class="btn btn-reset" onclick="resetEx('1B')">Reset</button></div>
+<div class="ex-score" id="score-1B"></div>
+</div>
+
+<div class="exercise" id="ex-1C">
+<div class="exercise-header"><div class="exercise-title">1C — Correct the Mistake</div><div class="exercise-tag">Error Correction</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>Find the word order error. Is the verb in slot 2?</div>
+<div class="questions" data-ex="1C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>Heute Leon kauft Kaffee.</em> →</div><input class="answer-field" type="text" data-answer="heute kauft leon kaffee"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>Morgen er kommt nach Hause.</em> →</div><input class="answer-field" type="text" data-answer="morgen kommt er nach hause"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Manchmal Felix trinkt Tee.</em> →</div><input class="answer-field" type="text" data-answer="manchmal trinkt felix tee"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>Wir gehen ins Kino heute Abend.</em> →</div><input class="answer-field" type="text" data-answer="wir gehen heute abend ins kino|heute abend gehen wir ins kino"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>Er nicht kommt morgen.</em> →</div><input class="answer-field" type="text" data-answer="er kommt morgen nicht|morgen kommt er nicht"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('1C')">Check</button><button class="btn btn-reset" onclick="resetEx('1C')">Reset</button></div>
+<div class="ex-score" id="score-1C"></div>
+</div>
+
+<div class="exercise" id="ex-1D">
+<div class="exercise-header"><div class="exercise-title">1D — Build a Yes/No Question</div><div class="exercise-tag">Question Formation</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>Verb jumps to slot 1. Subject follows immediately after.</div>
+<div class="questions" data-ex="1D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>Felix trinkt Kaffee.</em> →</div><input class="answer-field" type="text" data-answer="trinkt felix kaffee|trinkt felix kaffee?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>Leon kommt morgen.</em> →</div><input class="answer-field" type="text" data-answer="kommt leon morgen|kommt leon morgen?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Sie lernen Deutsch.</em> →</div><input class="answer-field" type="text" data-answer="lernen sie deutsch|lernen sie deutsch?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>Wir gehen ins Restaurant.</em> →</div><input class="answer-field" type="text" data-answer="gehen wir ins restaurant|gehen wir ins restaurant?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>Leon schläft noch.</em> →</div><input class="answer-field" type="text" data-answer="schläft leon noch|schlaft leon noch|schläft leon noch?|schlaft leon noch?"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('1D')">Check</button><button class="btn btn-reset" onclick="resetEx('1D')">Reset</button></div>
+<div class="ex-score" id="score-1D"></div>
+</div>
+
+<div class="exercise" id="ex-1E">
+<div class="exercise-header"><div class="exercise-title">1E — W-Questions</div><div class="exercise-tag">Question Words</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>W-word = slot 1. Verb = slot 2. Subject follows.</div>
+<div class="questions" data-ex="1E">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>Leon wohnt in Berlin.</em> (Wo?) →</div><input class="answer-field" type="text" data-answer="wo wohnt leon|wo wohnt leon?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>Felix heißt Felix.</em> (Wie?) →</div><input class="answer-field" type="text" data-answer="wie heißt er|wie heisst er|wie heißt felix|wie heisst felix|wie heißt er?|wie heisst er?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Der Zug kommt um 10 Uhr.</em> (Wann?) →</div><input class="answer-field" type="text" data-answer="wann kommt der zug|wann kommt der zug?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>Der Kaffee kostet 3 Euro.</em> (Wie viel?) →</div><input class="answer-field" type="text" data-answer="wie viel kostet der kaffee|wie viel kostet der kaffee?"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>Felix fährt nach München.</em> (Wohin?) →</div><input class="answer-field" type="text" data-answer="wohin fährt felix|wohin fahrt felix|wohin fährt felix?|wohin fahrt felix?"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('1E')">Check</button><button class="btn btn-reset" onclick="resetEx('1E')">Reset</button></div>
+<div class="ex-score" id="score-1E"></div>
+</div>
+
+<button class="day-grade-btn" onclick="gradeDay(1,['1A','1B','1C','1D','1E'])">Grade Day 1</button>
+<div class="day-summary" id="day-summary-1"><div class="summary-title">Day 1 Complete</div><div class="summary-score" id="day-score-1"></div><div class="summary-verdict" id="day-verdict-1"></div></div>
+</div>
+<!-- DAY 2 -->
+<div class="day-panel" id="day-2">
+<div class="story-card"><div class="story-label">📖 Story So Far — Day 2</div><div class="story-text">Felix's package arrived — and Leon accidentally took it. It contained a scarf from Felix's mum. Leon found the scarf nice. He will not be admitting this.</div></div>
+
+<div class="exercise" id="ex-2A">
+<div class="exercise-header"><div class="exercise-title">2A — Apply the TMP Rule</div><div class="exercise-tag">Time · Manner · Place</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>Time (WHEN) → Manner (HOW) → Place (WHERE). Never place before time!</div>
+<div class="questions" data-ex="2A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>Leon fährt mit dem Fahrrad / morgen / nach Hamburg.</em> →</div><input class="answer-field" type="text" data-answer="leon fährt morgen mit dem fahrrad nach hamburg|leon fahrt morgen mit dem fahrrad nach hamburg|morgen fährt leon mit dem fahrrad nach hamburg"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>Felix geht / jeden Tag / schnell / zur Universität.</em> →</div><input class="answer-field" type="text" data-answer="felix geht jeden tag schnell zur universität|felix geht jeden tag schnell zur universitat|jeden tag geht felix schnell zur universität"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Leon fliegt / allein / nächsten Sommer / nach Japan.</em> →</div><input class="answer-field" type="text" data-answer="leon fliegt nächsten sommer allein nach japan|leon fliegt nachsten sommer allein nach japan|nächsten sommer fliegt leon allein nach japan"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>Wir fahren / nach Wien / mit dem Zug / am Wochenende.</em> →</div><input class="answer-field" type="text" data-answer="wir fahren am wochenende mit dem zug nach wien|am wochenende fahren wir mit dem zug nach wien"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>Felix läuft / morgens / in den Park / langsam.</em> →</div><input class="answer-field" type="text" data-answer="felix läuft morgens langsam in den park|felix lauft morgens langsam in den park|morgens läuft felix langsam in den park"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('2A')">Check</button><button class="btn btn-reset" onclick="resetEx('2A')">Reset</button></div>
+<div class="ex-score" id="score-2A"></div>
+</div>
+
+<div class="exercise" id="ex-2B">
+<div class="exercise-header"><div class="exercise-title">2B — End Kick</div><div class="exercise-tag">Verb to End</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>After weil/dass/wenn/obwohl/ob — verb SPRINTS to the very end.</div>
+<div class="questions" data-ex="2B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Felix bleibt zu Hause, weil er ___ <em>(krank sein)</em>.</div><input class="answer-field" type="text" data-answer="krank ist|felix bleibt zu hause weil er krank ist|felix bleibt zu hause, weil er krank ist"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Leon weiß, dass Felix ___ <em>(morgen kommen)</em>.</div><input class="answer-field" type="text" data-answer="morgen kommt|leon weiß dass felix morgen kommt|leon weiss dass felix morgen kommt"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix fragt, ob Leon ___ <em>(Zeit haben)</em>.</div><input class="answer-field" type="text" data-answer="zeit hat|felix fragt ob leon zeit hat"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Leon geht spazieren, obwohl es ___ <em>(regnen)</em>.</div><input class="answer-field" type="text" data-answer="regnet|leon geht spazieren obwohl es regnet"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix spart Geld, damit er ___ <em>(ein Fahrrad kaufen können)</em>.</div><input class="answer-field" type="text" data-answer="ein fahrrad kaufen kann|ein fahrrad kaufen können"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('2B')">Check</button><button class="btn btn-reset" onclick="resetEx('2B')">Reset</button></div>
+<div class="ex-score" id="score-2B"></div>
+</div>
+
+<div class="exercise" id="ex-2C">
+<div class="exercise-header"><div class="exercise-title">2C — weil vs. denn</div><div class="exercise-tag">Conjunctions</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>Both mean 'because'. weil = verb to end. denn = normal order. Look at the verb position given.</div>
+<div class="questions" data-ex="2C" data-type="choice" data-answers="weil|denn|denn|weil|denn">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon schläft früh, ___ er müde <strong>ist</strong>. (verb at end)</div><div class="choice-row"><button class="choice-btn" onclick="selectChoice(this,'2C',0,'weil')">weil</button><button class="choice-btn" onclick="selectChoice(this,'2C',1,'denn')">denn</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Felix lernt viel, ___ die Prüfung <strong>ist</strong> schwer. (normal order)</div><div class="choice-row"><button class="choice-btn" onclick="selectChoice(this,'2C',2,'weil')">weil</button><button class="choice-btn" onclick="selectChoice(this,'2C',3,'denn')">denn</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Leon isst nicht, ___ er <strong>hat</strong> keinen Hunger. (normal order)</div><div class="choice-row"><button class="choice-btn" onclick="selectChoice(this,'2C',4,'weil')">weil</button><button class="choice-btn" onclick="selectChoice(this,'2C',5,'denn')">denn</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir bleiben drinnen, ___ es <strong>regnet</strong>. (verb at end)</div><div class="choice-row"><button class="choice-btn" onclick="selectChoice(this,'2C',6,'weil')">weil</button><button class="choice-btn" onclick="selectChoice(this,'2C',7,'denn')">denn</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix mag Leon, ___ er <strong>ist</strong> manchmal lustig. (normal order)</div><div class="choice-row"><button class="choice-btn" onclick="selectChoice(this,'2C',8,'weil')">weil</button><button class="choice-btn" onclick="selectChoice(this,'2C',9,'denn')">denn</button></div><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeChoiceEx('2C',['weil','denn','denn','weil','denn'])">Check</button><button class="btn btn-reset" onclick="resetEx('2C')">Reset</button></div>
+<div class="ex-score" id="score-2C"></div>
+</div>
+
+<div class="exercise" id="ex-2D">
+<div class="exercise-header"><div class="exercise-title">2D — Subordinate Clause First</div><div class="exercise-tag">Clause Order</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>When the weil/wenn/obwohl clause comes FIRST, the main clause verb immediately follows the comma — no subject first!</div>
+<div class="questions" data-ex="2D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon schläft, weil er erschöpft ist. <strong>Put weil-clause first</strong> →</div><input class="answer-field" type="text" data-answer="weil er erschöpft ist schläft leon|weil er erschopft ist schlaft leon|weil er erschöpft ist, schläft leon"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Felix ruft an, wenn er ankommt. <strong>Put wenn-clause first</strong> →</div><input class="answer-field" type="text" data-answer="wenn er ankommt ruft felix an|wenn er ankommt, ruft felix an"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Leon arbeitet, obwohl er krank ist. <strong>Put obwohl-clause first</strong> →</div><input class="answer-field" type="text" data-answer="obwohl er krank ist arbeitet leon|obwohl er krank ist, arbeitet leon"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir essen, nachdem wir den Film gesehen haben. <strong>Put nachdem-clause first</strong> →</div><input class="answer-field" type="text" data-answer="nachdem wir den film gesehen haben essen wir|nachdem wir den film gesehen haben, essen wir"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix kauft ein Fahrrad, damit er zur Arbeit fahren kann. <strong>Put damit-clause first</strong> →</div><input class="answer-field" type="text" data-answer="damit er zur arbeit fahren kann kauft felix ein fahrrad|damit er zur arbeit fahren kann, kauft felix ein fahrrad"><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('2D')">Check</button><button class="btn btn-reset" onclick="resetEx('2D')">Reset</button></div>
+<div class="ex-score" id="score-2D"></div>
+</div>
+
+<div class="exercise" id="ex-2E">
+<div class="exercise-header"><div class="exercise-title">2E — Correct or Wrong?</div><div class="exercise-tag">Error Spotting</div></div>
+<div class="hint-box"><span class="hint-label">💡 Hint</span>Does the end-kick word have the verb at the end of ITS clause?</div>
+<div class="questions" data-ex="2E" data-type="verdict" data-answers="wrong|correct|wrong|correct|correct">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>Leon bleibt zu Hause, weil er ist müde.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',0,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',0,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>Felix sagt, dass er morgen kommt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',1,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',1,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Wenn Felix Zeit hat, er kommt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',2,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',2,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>Leon fragt, ob Felix schläft.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',3,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',3,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>Ich weiß nicht, wo Felix wohnt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',4,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',4,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+</div>
+<div class="exercise-actions"><button class="btn btn-check" onclick="gradeVerdictEx('2E',['wrong','correct','wrong','correct','correct'],['weil er ist müde → weil er müde IST','✓ dass er morgen kommt','Wenn Felix Zeit hat, KOMMT er.','✓ ob Felix schläft','✓ wo Felix wohnt'])">Check</button><button class="btn btn-reset" onclick="resetEx('2E')">Reset</button></div>
+<div class="ex-score" id="score-2E"></div>
+</div>
+
+<button class="day-grade-btn" onclick="gradeDay(2,['2A','2B','2C','2D','2E'])">Grade Day 2</button>
+<div class="day-summary" id="day-summary-2"><div class="summary-title">Day 2 Complete</div><div class="summary-score" id="day-score-2"></div><div class="summary-verdict" id="day-verdict-2"></div></div>
+</div>
+<div class="day-panel" id="day-3">
+<div class="story-card"><div class="story-label">📖 Day 3</div><div class="story-text">Felix's colleague Tobias visited. Leon watched from the peephole. Leon does not like Tobias. Leon gave Felix a gift — a bowl of soup, left outside his door. Accidentally on purpose.</div></div>
+<div class="exercise" id="ex-3A"><div class="exercise-header"><div class="exercise-title">3A — Nominative or Accusative?</div><div class="exercise-tag">Cases</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>NOM = doing the action. ACC = receiving it. Only masculine changes: der → den.</div><div class="questions" data-ex="3A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">___ Hund bellt. (masc, subject)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Leon sieht ___ Hund. (masc, object)</div><input class="answer-field" type="text" data-answer="den"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">___ Frau lacht. (fem, subject)</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Felix ruft ___ Frau an. (fem, object)</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">___ Kind schläft. (neut, subject)</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Leon trägt ___ Kind. (neut, object)</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">___ Mann kauft Kaffee. (masc, subject)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Kennst du ___ Mann? (masc, object)</div><input class="answer-field" type="text" data-answer="den"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">___ Katze schläft. (fem, subject)</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Felix füttert ___ Katze. (fem, object)</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('3A')">Check</button><button class="btn btn-reset" onclick="resetEx('3A')">Reset</button></div><div class="ex-score" id="score-3A"></div></div>
+<div class="exercise" id="ex-3B"><div class="exercise-header"><div class="exercise-title">3B — Fill in the Dative Article</div><div class="exercise-tag">Dative Case</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>DAT: dem (masc/neut), der (fem), den+n (plural). After: mit, bei, aus, nach, von, seit, zu, helfen, danken.</div><div class="questions" data-ex="3B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon hilft ___ Mann. (masc)</div><input class="answer-field" type="text" data-answer="dem"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Felix dankt ___ Frau. (fem)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Das gehört ___ Kind. (neut)</div><input class="answer-field" type="text" data-answer="dem"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir spielen mit ___ Hunden. (plural)</div><input class="answer-field" type="text" data-answer="den"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix spricht mit ___ Kollegen. (masc)</div><input class="answer-field" type="text" data-answer="dem"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Leon kommt aus ___ Büro. (neut)</div><input class="answer-field" type="text" data-answer="dem"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Felix fährt mit ___ Fahrrad. (neut)</div><input class="answer-field" type="text" data-answer="dem"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Leon wohnt bei ___ Familie. (fem)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Nach ___ Arbeit geht Felix joggen. (fem)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Das schmeckt ___ Kind nicht. (neut)</div><input class="answer-field" type="text" data-answer="dem"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('3B')">Check</button><button class="btn btn-reset" onclick="resetEx('3B')">Reset</button></div><div class="ex-score" id="score-3B"></div></div>
+<div class="exercise" id="ex-3C"><div class="exercise-header"><div class="exercise-title">3C — Genitive: des or der?</div><div class="exercise-tag">Genitive Case</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>GEN: des+s (masc/neut), der (fem/plural). Think: "of the ___".</div><div class="questions" data-ex="3C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Das ist das Auto ___ Mannes. (des/der)</div><input class="answer-field" type="text" data-answer="des"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Der Name ___ Frau ist Anna. (des/der)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Das Zimmer ___ Kindes ist klein. (des/der)</div><input class="answer-field" type="text" data-answer="des"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Die Farbe ___ Blumen ist rot. (des/der)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Wegen ___ Regens bleibt Leon drinnen. (des/der)</div><input class="answer-field" type="text" data-answer="des"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Trotz ___ Kälte geht Felix raus. (des/der)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Während ___ Unterrichts ist Leon müde. (des/der)</div><input class="answer-field" type="text" data-answer="des"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Das ist die Tasche ___ Lehrerin. (des/der)</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('3C')">Check</button><button class="btn btn-reset" onclick="resetEx('3C')">Reset</button></div><div class="ex-score" id="score-3C"></div></div>
+<div class="exercise" id="ex-3D"><div class="exercise-header"><div class="exercise-title">3D — All Four Cases — Translate</div><div class="exercise-tag">Full Cases</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Step 1: identify role (doer/target/receiver/owner). Step 2: pick the right article.</div><div class="questions" data-ex="3D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">The dog sleeps. (Hund = masc)</div><input class="answer-field" type="text" data-answer="der hund schläft|der hund schlaft"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">I see the dog.</div><input class="answer-field" type="text" data-answer="ich sehe den hund"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">I play with the dog.</div><input class="answer-field" type="text" data-answer="ich spiele mit dem hund"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">That is the dog's bowl. (Schüssel = fem)</div><input class="answer-field" type="text" data-answer="das ist die schüssel des hundes|das ist die schussel des hundes"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">A man calls. (Mann = masc)</div><input class="answer-field" type="text" data-answer="ein mann ruft an"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">I know a man.</div><input class="answer-field" type="text" data-answer="ich kenne einen mann"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">I write to a man. (schreiben + DAT)</div><input class="answer-field" type="text" data-answer="ich schreibe einem mann"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">That is a man's idea. (Idee = fem)</div><input class="answer-field" type="text" data-answer="das ist die idee eines mannes"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">The child laughs. (Kind = neut)</div><input class="answer-field" type="text" data-answer="das kind lacht"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Felix gives the child soup. (Suppe = fem)</div><input class="answer-field" type="text" data-answer="felix gibt dem kind suppe"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('3D')">Check</button><button class="btn btn-reset" onclick="resetEx('3D')">Reset</button></div><div class="ex-score" id="score-3D"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(3,['3A','3B','3C','3D'])">Grade Day 3</button>
+<div class="day-summary" id="day-summary-3"><div class="summary-title">Day 3 Complete</div><div class="summary-score" id="day-score-3"></div><div class="summary-verdict" id="day-verdict-3"></div></div>
+</div>
+<div class="day-panel" id="day-4">
+<div class="story-card"><div class="story-label">📖 Day 4</div><div class="story-text">Felix can hear Leon cooking. It smells extraordinary. Felix is pretending not to notice. He is absolutely noticing.</div></div>
+<div class="exercise" id="ex-4A"><div class="exercise-header"><div class="exercise-title">4A — Guess the Gender</div><div class="exercise-tag">Article Rules</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>-ung/-heit/-keit/-schaft/-tion/-ik → die &nbsp;|&nbsp; -er/-or/-ismus → der &nbsp;|&nbsp; -chen/-lein/-ment/-um → das</div><div class="questions" data-ex="4A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">___ Wohnung</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">___ Freundschaft</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">___ Computer</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">___ Mädchen</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">___ Information</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">___ Tourismus</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">___ Dokument</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">___ Freiheit</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">___ Museum</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">___ Autor</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('4A')">Check</button><button class="btn btn-reset" onclick="resetEx('4A')">Reset</button></div><div class="ex-score" id="score-4A"></div></div>
+<div class="exercise" id="ex-4B"><div class="exercise-header"><div class="exercise-title">4B — More Gender by Pattern</div><div class="exercise-tag">Gender Rules</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Same rules apply. When in doubt: guess die — most German nouns are feminine.</div><div class="questions" data-ex="4B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">___ Möglichkeit</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">___ Motor</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">___ Brötchen</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">___ Kommunikation</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">___ Experiment</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">___ Gesellschaft</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">___ Fehler</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">___ Zentrum</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">___ Politik</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">___ Beschreibung</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('4B')">Check</button><button class="btn btn-reset" onclick="resetEx('4B')">Reset</button></div><div class="ex-score" id="score-4B"></div></div>
+<div class="exercise" id="ex-4C"><div class="exercise-header"><div class="exercise-title">4C — Compound Nouns: Gender?</div><div class="exercise-tag">Compound Gender</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Gender = gender of the LAST word only.</div><div class="questions" data-ex="4C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">das Buch + die Tasche = ___ Buchtasche</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">der Zug + der Fahrer = ___ Zugfahrer</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">die Hand + das Tuch = ___ Handtuch</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">der Regen + der Schirm = ___ Regenschirm</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">das Haus + die Tür = ___ Haustür</div><input class="answer-field" type="text" data-answer="die"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">die Arbeit + der Platz = ___ Arbeitsplatz</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">der Morgen + das Essen = ___ Morgenessen</div><input class="answer-field" type="text" data-answer="das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">die Schule + der Bus = ___ Schulbus</div><input class="answer-field" type="text" data-answer="der"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('4C')">Check</button><button class="btn btn-reset" onclick="resetEx('4C')">Reset</button></div><div class="ex-score" id="score-4C"></div></div>
+<div class="exercise" id="ex-4D"><div class="exercise-header"><div class="exercise-title">4D — Verb as Noun (always das)</div><div class="exercise-tag">Nominalized Verbs</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Any verb used as a noun = always das. Capitalise the verb and add das.</div><div class="questions" data-ex="4D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">essen →</div><input class="answer-field" type="text" data-answer="das essen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">schlafen →</div><input class="answer-field" type="text" data-answer="das schlafen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">lernen →</div><input class="answer-field" type="text" data-answer="das lernen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">kochen →</div><input class="answer-field" type="text" data-answer="das kochen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">lachen →</div><input class="answer-field" type="text" data-answer="das lachen"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('4D')">Check</button><button class="btn btn-reset" onclick="resetEx('4D')">Reset</button></div><div class="ex-score" id="score-4D"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(4,['4A','4B','4C','4D'])">Grade Day 4</button>
+<div class="day-summary" id="day-summary-4"><div class="summary-title">Day 4 Complete</div><div class="summary-score" id="day-score-4"></div><div class="summary-verdict" id="day-verdict-4"></div></div>
+</div>
+
+<!-- DAY 5 -->
+<div class="day-panel" id="day-5">
+<div class="story-card"><div class="story-label">📖 Day 5</div><div class="story-text">Leon and Felix ran into each other at the supermarket. They fought over the last loaf of bread. Leon gave it to Felix. Nobody is talking about what that means.</div></div>
+<div class="exercise" id="ex-5A"><div class="exercise-header"><div class="exercise-title">5A — der/die/das or ein/eine?</div><div class="exercise-tag">Articles</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Definite = specific/known. Indefinite = first mention. Once introduced → switch to definite.</div><div class="questions" data-ex="5A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon sieht ___ Brot da drüben. Er kauft ___ Brot. (first blank = introducing; second = now known)</div><input class="answer-field" type="text" data-answer="ein ... das|ein das"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Felix kauft ___ Fahrrad. Es ist ___ rotes Fahrrad. (both introducing)</div><input class="answer-field" type="text" data-answer="ein ... ein|ein ein"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Das ist ___ Schlüssel. ___ Schlüssel gehört Leon.</div><input class="answer-field" type="text" data-answer="ein ... der|ein der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Leon braucht ___ Arzt. ___ Arzt in diesem Krankenhaus ist gut.</div><input class="answer-field" type="text" data-answer="einen ... der|einen der"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix kauft ___ Tasche. ___ Tasche ist teuer.</div><input class="answer-field" type="text" data-answer="eine ... die|eine die"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('5A')">Check</button><button class="btn btn-reset" onclick="resetEx('5A')">Reset</button></div><div class="ex-score" id="score-5A"></div></div>
+<div class="exercise" id="ex-5B"><div class="exercise-header"><div class="exercise-title">5B — nicht or kein/keine/keinen?</div><div class="exercise-tag">Negation</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Negating a NOUN → kein. Negating a VERB or ADJECTIVE → nicht.</div><div class="questions" data-ex="5B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon isst ___ Fleisch.</div><input class="answer-field" type="text" data-answer="kein"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Felix kommt ___ morgen.</div><input class="answer-field" type="text" data-answer="nicht"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Das ist ___ gute Idee.</div><input class="answer-field" type="text" data-answer="keine"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir haben ___ Zeit.</div><input class="answer-field" type="text" data-answer="keine"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Leon schläft ___.</div><input class="answer-field" type="text" data-answer="nicht"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Felix hat ___ Hunger.</div><input class="answer-field" type="text" data-answer="keinen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Das stimmt ___.</div><input class="answer-field" type="text" data-answer="nicht"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Er ist ___ Arzt.</div><input class="answer-field" type="text" data-answer="kein"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Leon kennt ___ Weg.</div><input class="answer-field" type="text" data-answer="keinen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Das gefällt Felix ___.</div><input class="answer-field" type="text" data-answer="nicht"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('5B')">Check</button><button class="btn btn-reset" onclick="resetEx('5B')">Reset</button></div><div class="ex-score" id="score-5B"></div></div>
+<div class="exercise" id="ex-5D"><div class="exercise-header"><div class="exercise-title">5D — Full Sentence Translation</div><div class="exercise-tag">Negation Translation</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Decide: noun being negated (kein) or verb/adjective (nicht)?</div><div class="questions" data-ex="5D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon has no coffee.</div><input class="answer-field" type="text" data-answer="leon hat keinen kaffee"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">There is no problem.</div><input class="answer-field" type="text" data-answer="es gibt kein problem"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix has no idea. (keine Ahnung)</div><input class="answer-field" type="text" data-answer="felix hat keine ahnung"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Leon doesn't drink tea.</div><input class="answer-field" type="text" data-answer="leon trinkt keinen tee"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">That is not a mistake. (Fehler = masc)</div><input class="answer-field" type="text" data-answer="das ist kein fehler"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('5D')">Check</button><button class="btn btn-reset" onclick="resetEx('5D')">Reset</button></div><div class="ex-score" id="score-5D"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(5,['5A','5B','5D'])">Grade Day 5</button>
+<div class="day-summary" id="day-summary-5"><div class="summary-title">Day 5 Complete</div><div class="summary-score" id="day-score-5"></div><div class="summary-verdict" id="day-verdict-5"></div></div>
+</div>
+
+<!-- DAY 6 -->
+<div class="day-panel" id="day-6">
+<div class="story-card"><div class="story-label">📖 Day 6</div><div class="story-text">Leon cooked dinner. Felix was invited. The pasta was excellent. They talked until midnight. Leon is now pretending this was a normal neighbourly thing to do.</div></div>
+<div class="exercise" id="ex-6A"><div class="exercise-header"><div class="exercise-title">6A — Conjugate the Verb</div><div class="exercise-tag">Conjugation</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Regular: stem + -e/-st/-t/-en/-t/-en. Stem-changers ONLY change in du and er/sie/es.</div><div class="questions" data-ex="6A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Ich ___ viel. (lernen)</div><input class="answer-field" type="text" data-answer="lerne"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Du ___ zu schnell. (fahren — stem changer!)</div><input class="answer-field" type="text" data-answer="fährst|fahrst"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix ___ jeden Tag Sport. (machen)</div><input class="answer-field" type="text" data-answer="macht"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir ___ Deutsch. (sprechen — stem changer!)</div><input class="answer-field" type="text" data-answer="sprechen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Ihr ___ zu viel. (schlafen — stem changer!)</div><input class="answer-field" type="text" data-answer="schläft|schlaft"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Leon ___ die Zeitung. (lesen — stem changer!)</div><input class="answer-field" type="text" data-answer="liest"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Du ___ das falsch. (machen)</div><input class="answer-field" type="text" data-answer="machst"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Felix ___ ein Buch. (lesen — stem changer!)</div><input class="answer-field" type="text" data-answer="liest"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Ich ___ den Bus. (nehmen — stem changer!)</div><input class="answer-field" type="text" data-answer="nehme"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Leon ___ gut aus. (aussehen — stem changer!)</div><input class="answer-field" type="text" data-answer="sieht ... aus|sieht aus"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('6A')">Check</button><button class="btn btn-reset" onclick="resetEx('6A')">Reset</button></div><div class="ex-score" id="score-6A"></div></div>
+<div class="exercise" id="ex-6B"><div class="exercise-header"><div class="exercise-title">6B — sein and haben</div><div class="exercise-tag">Irregular Verbs</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>sein: bin/bist/ist/sind/seid/sind. haben: habe/hast/hat/haben/habt/haben.</div><div class="questions" data-ex="6B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Ich ___ müde.</div><input class="answer-field" type="text" data-answer="bin"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Du ___ Recht.</div><input class="answer-field" type="text" data-answer="hast"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Leon ___ krank.</div><input class="answer-field" type="text" data-answer="ist"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir ___ Glück.</div><input class="answer-field" type="text" data-answer="haben"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Ihr ___ laut.</div><input class="answer-field" type="text" data-answer="seid"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Felix ___ pünktlich.</div><input class="answer-field" type="text" data-answer="ist"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Ich ___ keine Zeit.</div><input class="answer-field" type="text" data-answer="habe"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Du ___ Hunger.</div><input class="answer-field" type="text" data-answer="hast"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Das Baby ___ Durst.</div><input class="answer-field" type="text" data-answer="hat"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Wir ___ Angst.</div><input class="answer-field" type="text" data-answer="haben"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('6B')">Check</button><button class="btn btn-reset" onclick="resetEx('6B')">Reset</button></div><div class="ex-score" id="score-6B"></div></div>
+<div class="exercise" id="ex-6C"><div class="exercise-header"><div class="exercise-title">6C — werden</div><div class="exercise-tag">Conjugation</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>werde/wirst/wird/werden/werdet/werden. Means "to become" AND helps form future.</div><div class="questions" data-ex="6C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Ich ___ Arzt.</div><input class="answer-field" type="text" data-answer="werde"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Es ___ kalt.</div><input class="answer-field" type="text" data-answer="wird"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Du ___ besser.</div><input class="answer-field" type="text" data-answer="wirst"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir ___ müde.</div><input class="answer-field" type="text" data-answer="werden"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix ___ Ingenieur.</div><input class="answer-field" type="text" data-answer="wird"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('6C')">Check</button><button class="btn btn-reset" onclick="resetEx('6C')">Reset</button></div><div class="ex-score" id="score-6C"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(6,['6A','6B','6C'])">Grade Day 6</button>
+<div class="day-summary" id="day-summary-6"><div class="summary-title">Day 6 Complete</div><div class="summary-score" id="day-score-6"></div><div class="summary-verdict" id="day-verdict-6"></div></div>
+</div>
+
+<!-- DAY 7 -->
+<div class="day-panel" id="day-7">
+<div class="story-card"><div class="story-label">📖 Day 7</div><div class="story-text">They tried to assemble an IKEA shelf together. It collapsed. Twice. They drove back to IKEA. Neither of them found this annoying. This is suspicious.</div></div>
+<div class="exercise" id="ex-7A"><div class="exercise-header"><div class="exercise-title">7A — Insert the Correct Modal</div><div class="exercise-tag">Modal Verbs</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>können=can, müssen=must, wollen=want, sollen=supposed to, dürfen=allowed, möchten=would like.</div><div class="questions" data-ex="7A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon ___ Deutsch sprechen. (ability)</div><input class="answer-field" type="text" data-answer="kann"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Du ___ jetzt kommen. (obligation)</div><input class="answer-field" type="text" data-answer="musst"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix ___ ein Fahrrad kaufen. (desire)</div><input class="answer-field" type="text" data-answer="will"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Man ___ hier nicht rauchen. (prohibition)</div><input class="answer-field" type="text" data-answer="darf"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Wir ___ morgen früh aufstehen. (supposed to)</div><input class="answer-field" type="text" data-answer="sollen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">___ ich bitte das Fenster öffnen? (polite request)</div><input class="answer-field" type="text" data-answer="darf"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Du ___ nicht lügen. (not allowed)</div><input class="answer-field" type="text" data-answer="darfst"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Ich ___ einen Kaffee bitte. (polite — would like)</div><input class="answer-field" type="text" data-answer="möchte"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">___ Sie mir helfen? (formal — can you)</div><input class="answer-field" type="text" data-answer="können"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Das ___ nicht wahr sein. (logical deduction)</div><input class="answer-field" type="text" data-answer="muss"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('7A')">Check</button><button class="btn btn-reset" onclick="resetEx('7A')">Reset</button></div><div class="ex-score" id="score-7A"></div></div>
+<div class="exercise" id="ex-7B"><div class="exercise-header"><div class="exercise-title">7B — Build the Sentence (Modal Sandwich)</div><div class="exercise-tag">Modal Structure</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Modal = slot 2. Infinitive = very end. Subject → Modal → [stuff] → Infinitive.</div><div class="questions" data-ex="7B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon / müssen / heute / arbeiten →</div><input class="answer-field" type="text" data-answer="leon muss heute arbeiten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Felix / wollen / ein Buch / lesen →</div><input class="answer-field" type="text" data-answer="felix will ein buch lesen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">wir / können / das / nicht / verstehen →</div><input class="answer-field" type="text" data-answer="wir können das nicht verstehen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">du / sollen / pünktlich / sein →</div><input class="answer-field" type="text" data-answer="du sollst pünktlich sein|du sollst punktlich sein"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix / möchten / nach Berlin / fahren →</div><input class="answer-field" type="text" data-answer="felix möchte nach berlin fahren|felix mochte nach berlin fahren"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('7B')">Check</button><button class="btn btn-reset" onclick="resetEx('7B')">Reset</button></div><div class="ex-score" id="score-7B"></div></div>
+<div class="exercise" id="ex-7C"><div class="exercise-header"><div class="exercise-title">7C — nicht müssen vs. nicht dürfen</div><div class="exercise-tag">Modal Negation</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>nicht müssen = no obligation (optional). nicht dürfen = FORBIDDEN. Completely different!</div><div class="questions" data-ex="7C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">You don't have to come. (optional)</div><input class="answer-field" type="text" data-answer="du musst nicht kommen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">You're not allowed to come. (forbidden)</div><input class="answer-field" type="text" data-answer="du darfst nicht kommen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Leon doesn't have to work today.</div><input class="answer-field" type="text" data-answer="leon muss heute nicht arbeiten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Felix isn't allowed to park here.</div><input class="answer-field" type="text" data-answer="felix darf hier nicht parken"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">We don't have to stay.</div><input class="answer-field" type="text" data-answer="wir müssen nicht bleiben|wir mussen nicht bleiben"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('7C')">Check</button><button class="btn btn-reset" onclick="resetEx('7C')">Reset</button></div><div class="ex-score" id="score-7C"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(7,['7A','7B','7C'])">Grade Day 7</button>
+<div class="day-summary" id="day-summary-7"><div class="summary-title">Day 7 Complete</div><div class="summary-score" id="day-score-7"></div><div class="summary-verdict" id="day-verdict-7"></div></div>
+</div>
+
+<!-- DAY 8 -->
+<div class="day-panel" id="day-8">
+<div class="story-card"><div class="story-label">📖 Day 8</div><div class="story-text">Leon called Felix from the street. Felix looked out the window. They went to the cinema. Felix fell asleep. Leon woke him up very gently. They walked home together.</div></div>
+<div class="exercise" id="ex-8A"><div class="exercise-header"><div class="exercise-title">8A — Split the Separable Verb</div><div class="exercise-tag">Separable Verbs</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Separable prefix flies to the END. Verb stem stays conjugated in slot 2.</div><div class="questions" data-ex="8A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">aufstehen — Leon ___ um 7 Uhr ___.</div><input class="answer-field" type="text" data-answer="leon steht um 7 uhr auf|steht ... auf"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">zumachen — Felix ___ die Tür ___.</div><input class="answer-field" type="text" data-answer="felix macht die tür zu|felix macht die tur zu|macht ... zu"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">einkaufen — Wir ___ heute ___.</div><input class="answer-field" type="text" data-answer="wir kaufen heute ein|kaufen ... ein"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">mitgehen — Kommst du ___?</div><input class="answer-field" type="text" data-answer="mit|kommst du mit"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">anfangen — Wann ___ der Film ___?</div><input class="answer-field" type="text" data-answer="wann fängt der film an|wann fangt der film an|fängt ... an"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">aufmachen — Felix ___ das Fenster ___.</div><input class="answer-field" type="text" data-answer="felix macht das fenster auf|macht ... auf"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">abfahren — Der Bus ___ um 9 ___.</div><input class="answer-field" type="text" data-answer="der bus fährt um 9 ab|der bus fahrt um 9 ab|fährt ... ab"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">einladen — Leon ___ Felix ___.</div><input class="answer-field" type="text" data-answer="leon lädt felix ein|leon ladt felix ein|lädt ... ein"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">ausgehen — Gehst du heute Abend ___?</div><input class="answer-field" type="text" data-answer="aus|gehst du heute abend aus"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">anrufen — Felix ___ Leon morgen ___.</div><input class="answer-field" type="text" data-answer="felix ruft leon morgen an|ruft ... an"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('8A')">Check</button><button class="btn btn-reset" onclick="resetEx('8A')">Reset</button></div><div class="ex-score" id="score-8A"></div></div>
+<div class="exercise" id="ex-8C"><div class="exercise-header"><div class="exercise-title">8C — Separable or Not?</div><div class="exercise-tag">Prefix Recognition</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Non-separable prefixes NEVER split: be-, ge-, er-, ver-, zer-, ent-, emp-, miss-.</div><div class="questions" data-ex="8C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">besuchen — S or NS?</div><input class="answer-field" type="text" data-answer="ns"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">ankommen — S or NS?</div><input class="answer-field" type="text" data-answer="s"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">verstehen — S or NS?</div><input class="answer-field" type="text" data-answer="ns"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">aufhören — S or NS?</div><input class="answer-field" type="text" data-answer="s"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">vergessen — S or NS?</div><input class="answer-field" type="text" data-answer="ns"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">einschlafen — S or NS?</div><input class="answer-field" type="text" data-answer="s"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">erklären — S or NS?</div><input class="answer-field" type="text" data-answer="ns"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">zurückgehen — S or NS?</div><input class="answer-field" type="text" data-answer="s"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">benutzen — S or NS?</div><input class="answer-field" type="text" data-answer="ns"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">weggehen — S or NS?</div><input class="answer-field" type="text" data-answer="s"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('8C')">Check</button><button class="btn btn-reset" onclick="resetEx('8C')">Reset</button></div><div class="ex-score" id="score-8C"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(8,['8A','8C'])">Grade Day 8</button>
+<div class="day-summary" id="day-summary-8"><div class="summary-title">Day 8 Complete</div><div class="summary-score" id="day-score-8"></div><div class="summary-verdict" id="day-verdict-8"></div></div>
+</div>
+
+<!-- DAY 9 -->
+<div class="day-panel" id="day-9">
+<div class="story-card"><div class="story-label">📖 Day 9</div><div class="story-text">They sat in a café until closing time. Leon told Felix he was his favourite person. Felix said it back. They walked home in the same direction. Nobody mentioned the key.</div></div>
+<div class="exercise" id="ex-9A"><div class="exercise-header"><div class="exercise-title">9A — Choose the Conjunction</div><div class="exercise-tag">Conjunctions</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>und/oder/aber/denn/sondern = normal order. weil/dass/wenn/obwohl/als/seit/bis = END KICK.</div><div class="questions" data-ex="9A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon bleibt drinnen, ___ es regnet. (reason, end kick)</div><input class="answer-field" type="text" data-answer="weil"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Willst du Tee ___ Kaffee?</div><input class="answer-field" type="text" data-answer="oder"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix ist fleißig, ___ er ist oft müde.</div><input class="answer-field" type="text" data-answer="aber"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Das ist kein Fehler, ___ eine Lösung.</div><input class="answer-field" type="text" data-answer="sondern"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Leon weiß, ___ du Recht hast.</div><input class="answer-field" type="text" data-answer="dass"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">___ Felix jung war, lebte er in Hamburg. (past, once)</div><input class="answer-field" type="text" data-answer="als"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Leon lernt viel, ___ er die Prüfung bestehen will.</div><input class="answer-field" type="text" data-answer="weil|damit"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Ruf mich an, ___ du ankommst.</div><input class="answer-field" type="text" data-answer="wenn"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Leon isst gerne, ___ er kocht nicht gern.</div><input class="answer-field" type="text" data-answer="aber"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">___ Felix krank ist, arbeitet er weiter.</div><input class="answer-field" type="text" data-answer="obwohl"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('9A')">Check</button><button class="btn btn-reset" onclick="resetEx('9A')">Reset</button></div><div class="ex-score" id="score-9A"></div></div>
+<div class="exercise" id="ex-9C"><div class="exercise-header"><div class="exercise-title">9C — wenn vs. als</div><div class="exercise-tag">Past vs Repeated</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>wenn = repeated situations OR future. als = ONE specific moment in the past.</div><div class="questions" data-ex="9C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">___ Leon klein war, hatte er einen Hund.</div><input class="answer-field" type="text" data-answer="als"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">___ Felix kommt, essen wir.</div><input class="answer-field" type="text" data-answer="wenn"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">___ Felix gestern ankam, war Leon nicht da.</div><input class="answer-field" type="text" data-answer="als"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">___ es regnet, bleibt Leon zu Hause.</div><input class="answer-field" type="text" data-answer="wenn"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">___ Leon 10 Jahre alt war, zog er nach Berlin.</div><input class="answer-field" type="text" data-answer="als"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">___ Felix müde ist, geht er früh schlafen.</div><input class="answer-field" type="text" data-answer="wenn"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('9C')">Check</button><button class="btn btn-reset" onclick="resetEx('9C')">Reset</button></div><div class="ex-score" id="score-9C"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(9,['9A','9C'])">Grade Day 9</button>
+<div class="day-summary" id="day-summary-9"><div class="summary-title">Day 9 Complete</div><div class="summary-score" id="day-score-9"></div><div class="summary-verdict" id="day-verdict-9"></div></div>
+</div>
+
+<!-- DAY 10 -->
+<div class="day-panel" id="day-10">
+<div class="story-card"><div class="story-label">📖 Day 10</div><div class="story-text">Felix gave Leon the key to his apartment. Leon has been staring at it for 24 hours. He has not used it. But he hasn't given it back either.</div></div>
+<div class="exercise" id="ex-10A"><div class="exercise-header"><div class="exercise-title">10A — Build the Past Participle</div><div class="exercise-tag">Perfekt</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Regular: ge + stem + t. Irregular: ge + stem + en. -ieren verbs: no ge-. Also state H or S (haben/sein).</div><div class="questions" data-ex="10A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">machen → participle (H or S?)</div><input class="answer-field" type="text" data-answer="gemacht h|gemacht — h|gemacht (h)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">gehen → participle (H or S?)</div><input class="answer-field" type="text" data-answer="gegangen s|gegangen — s|gegangen (s)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">essen → participle (H or S?)</div><input class="answer-field" type="text" data-answer="gegessen h|gegessen — h|gegessen (h)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">fahren → participle (H or S?)</div><input class="answer-field" type="text" data-answer="gefahren s|gefahren — s|gefahren (s)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">schreiben → participle (H or S?)</div><input class="answer-field" type="text" data-answer="geschrieben h|geschrieben — h|geschrieben (h)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">kommen → participle (H or S?)</div><input class="answer-field" type="text" data-answer="gekommen s|gekommen — s|gekommen (s)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">kaufen → participle (H or S?)</div><input class="answer-field" type="text" data-answer="gekauft h|gekauft — h|gekauft (h)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">laufen → participle (H or S?)</div><input class="answer-field" type="text" data-answer="gelaufen s|gelaufen — s|gelaufen (s)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">schlafen → participle (H or S?)</div><input class="answer-field" type="text" data-answer="geschlafen h|geschlafen — h|geschlafen (h)"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">werden → participle (H or S?)</div><input class="answer-field" type="text" data-answer="geworden s|geworden — s|geworden (s)"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('10A')">Check</button><button class="btn btn-reset" onclick="resetEx('10A')">Reset</button></div><div class="ex-score" id="score-10A"></div></div>
+<div class="exercise" id="ex-10B"><div class="exercise-header"><div class="exercise-title">10B — Complete with Perfekt</div><div class="exercise-tag">Perfekt Sentences</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Motion A→B or state change → sein. Everything else → haben. Participle ALWAYS goes at the end.</div><div class="questions" data-ex="10B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Felix ___ gestern lange ___. (schlafen)</div><input class="answer-field" type="text" data-answer="hat ... geschlafen|felix hat gestern lange geschlafen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Leon ___ nach Berlin ___. (fahren)</div><input class="answer-field" type="text" data-answer="ist ... gefahren|leon ist nach berlin gefahren"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Wir ___ viel ___. (lernen)</div><input class="answer-field" type="text" data-answer="haben ... gelernt|wir haben viel gelernt"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Felix ___ ein Buch ___. (lesen)</div><input class="answer-field" type="text" data-answer="hat ... gelesen|felix hat ein buch gelesen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Du ___ früh ___. (aufstehen)</div><input class="answer-field" type="text" data-answer="bist ... aufgestanden|du bist früh aufgestanden"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Leon ___ Felix ___. (anrufen)</div><input class="answer-field" type="text" data-answer="hat ... angerufen|leon hat felix angerufen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Das ___ gestern ___. (passieren)</div><input class="answer-field" type="text" data-answer="ist ... passiert|das ist gestern passiert"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Felix ___ krank ___. (werden)</div><input class="answer-field" type="text" data-answer="ist ... geworden|felix ist krank geworden"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Wir ___ im Park ___ ___. (spazieren gehen)</div><input class="answer-field" type="text" data-answer="wir sind im park spazieren gegangen|sind ... spazieren gegangen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Leon ___ das Formular ___. (ausfüllen)</div><input class="answer-field" type="text" data-answer="hat ... ausgefüllt|leon hat das formular ausgefullt|leon hat das formular ausgefüllt"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('10B')">Check</button><button class="btn btn-reset" onclick="resetEx('10B')">Reset</button></div><div class="ex-score" id="score-10B"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(10,['10A','10B'])">Grade Day 10</button>
+<div class="day-summary" id="day-summary-10"><div class="summary-title">Day 10 Complete</div><div class="summary-score" id="day-score-10"></div><div class="summary-verdict" id="day-verdict-10"></div></div>
+</div>
+
+<!-- DAY 11 -->
+<div class="day-panel" id="day-11">
+<div class="story-card"><div class="story-label">📖 Day 11</div><div class="story-text">Leon wrote Felix a letter. Felix read it three times. Felix replied with two words: "Komm rein." Leon used the key.</div></div>
+<div class="exercise" id="ex-11A"><div class="exercise-header"><div class="exercise-title">11A — sein in Präteritum</div><div class="exercise-tag">Written Past</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>war/warst/war/waren/wart/waren. Used even in SPEECH. Memorise this cold.</div><div class="questions" data-ex="11A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon ___ gestern müde.</div><input class="answer-field" type="text" data-answer="war"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Du ___ nicht da.</div><input class="answer-field" type="text" data-answer="warst"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix ___ sehr nett.</div><input class="answer-field" type="text" data-answer="war"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir ___ in Wien.</div><input class="answer-field" type="text" data-answer="waren"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Ihr ___ zu laut.</div><input class="answer-field" type="text" data-answer="wart"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Felix ___ pünktlich.</div><input class="answer-field" type="text" data-answer="war"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Das ___ eine gute Idee.</div><input class="answer-field" type="text" data-answer="war"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Wo ___ du gestern?</div><input class="answer-field" type="text" data-answer="warst"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('11A')">Check</button><button class="btn btn-reset" onclick="resetEx('11A')">Reset</button></div><div class="ex-score" id="score-11A"></div></div>
+<div class="exercise" id="ex-11B"><div class="exercise-header"><div class="exercise-title">11B — haben in Präteritum</div><div class="exercise-tag">Written Past</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>hatte/hattest/hatte/hatten/hattet/hatten. Also used in speech.</div><div class="questions" data-ex="11B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon ___ keine Zeit.</div><input class="answer-field" type="text" data-answer="hatte"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Felix ___ Hunger.</div><input class="answer-field" type="text" data-answer="hatte"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Wir ___ Glück.</div><input class="answer-field" type="text" data-answer="hatten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Du ___ Recht.</div><input class="answer-field" type="text" data-answer="hattest"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix ___ keine Ahnung.</div><input class="answer-field" type="text" data-answer="hatte"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Ihr ___ keine Chance.</div><input class="answer-field" type="text" data-answer="hattet"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('11B')">Check</button><button class="btn btn-reset" onclick="resetEx('11B')">Reset</button></div><div class="ex-score" id="score-11B"></div></div>
+<div class="exercise" id="ex-11D"><div class="exercise-header"><div class="exercise-title">11D — Irregular Präteritum</div><div class="exercise-tag">Irregular Past</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>gehen→ging, kommen→kam, sehen→sah, fahren→fuhr, schreiben→schrieb, essen→aß.</div><div class="questions" data-ex="11D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">gehen → er ___</div><input class="answer-field" type="text" data-answer="ging"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">kommen → sie ___</div><input class="answer-field" type="text" data-answer="kam"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">sehen → ich ___</div><input class="answer-field" type="text" data-answer="sah"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">fahren → wir ___</div><input class="answer-field" type="text" data-answer="fuhren"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">schreiben → Felix ___</div><input class="answer-field" type="text" data-answer="schrieb"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">essen → du ___</div><input class="answer-field" type="text" data-answer="aßt|asst"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">trinken → ich ___</div><input class="answer-field" type="text" data-answer="trank"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">geben → er ___</div><input class="answer-field" type="text" data-answer="gab"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">nehmen → Leon ___</div><input class="answer-field" type="text" data-answer="nahm"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">werden → es ___</div><input class="answer-field" type="text" data-answer="wurde"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('11D')">Check</button><button class="btn btn-reset" onclick="resetEx('11D')">Reset</button></div><div class="ex-score" id="score-11D"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(11,['11A','11B','11D'])">Grade Day 11</button>
+<div class="day-summary" id="day-summary-11"><div class="summary-title">Day 11 Complete</div><div class="summary-score" id="day-score-11"></div><div class="summary-verdict" id="day-verdict-11"></div></div>
+</div>
+
+<!-- DAY 12 -->
+<div class="day-panel" id="day-12">
+<div class="story-card"><div class="story-label">📖 Day 12</div><div class="story-text">Leon is inside Felix's apartment. The Kachelofen is on. Felix wrapped his scarf around Leon's shoulders. Leon is experiencing feelings at an intensity that frightens him.</div></div>
+<div class="exercise" id="ex-12A"><div class="exercise-header"><div class="exercise-title">12A — Weak Endings (After der/die/das)</div><div class="exercise-tag">Adjective Endings</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>After definite articles: mostly -en. EXCEPT NOM and ACC fem + NOM and ACC neut → -e.</div><div class="questions" data-ex="12A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Der alt___ Mann schläft. (fill in ending)</div><input class="answer-field" type="text" data-answer="e|alte"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Ich sehe den alt___ Mann.</div><input class="answer-field" type="text" data-answer="en|alten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Ich helfe dem alt___ Mann.</div><input class="answer-field" type="text" data-answer="en|alten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Die jung___ Frau lacht.</div><input class="answer-field" type="text" data-answer="e|junge"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Ich kenne die jung___ Frau.</div><input class="answer-field" type="text" data-answer="e|junge"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Das klein___ Kind weint.</div><input class="answer-field" type="text" data-answer="e|kleine"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Leon sieht das klein___ Kind.</div><input class="answer-field" type="text" data-answer="e|kleine"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Die neu___ Autos sind teuer.</div><input class="answer-field" type="text" data-answer="en|neuen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Felix nimmt den letzt___ Zug.</div><input class="answer-field" type="text" data-answer="en|letzten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Leon liest das spannend___ Buch.</div><input class="answer-field" type="text" data-answer="e|spannende"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('12A')">Check</button><button class="btn btn-reset" onclick="resetEx('12A')">Reset</button></div><div class="ex-score" id="score-12A"></div></div>
+<div class="exercise" id="ex-12B"><div class="exercise-header"><div class="exercise-title">12B — Mixed Endings (After ein/kein/mein)</div><div class="exercise-tag">Mixed Declension</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Same as weak EXCEPT: NOM masc → -er, NOM and ACC neut → -es.</div><div class="questions" data-ex="12B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Ein alt___ Mann kommt.</div><input class="answer-field" type="text" data-answer="er|alter"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Ich sehe einen alt___ Mann.</div><input class="answer-field" type="text" data-answer="en|alten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Eine jung___ Frau ruft an.</div><input class="answer-field" type="text" data-answer="e|junge"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Ein klein___ Kind lacht.</div><input class="answer-field" type="text" data-answer="es|kleines"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Ich sehe ein klein___ Kind.</div><input class="answer-field" type="text" data-answer="es|kleines"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">6.</div><div class="q-content"><div class="q-prompt">Felix hat einen gut___ Job.</div><input class="answer-field" type="text" data-answer="en|guten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">7.</div><div class="q-content"><div class="q-prompt">Leon trägt ein rot___ Hemd.</div><input class="answer-field" type="text" data-answer="es|rotes"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">8.</div><div class="q-content"><div class="q-prompt">Das ist eine schwer___ Frage.</div><input class="answer-field" type="text" data-answer="e|schwere"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">9.</div><div class="q-content"><div class="q-prompt">Mein alt___ Lehrer war streng.</div><input class="answer-field" type="text" data-answer="er|alter"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">10.</div><div class="q-content"><div class="q-prompt">Kein kalt___ Kaffee für Leon.</div><input class="answer-field" type="text" data-answer="er|kalter"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('12B')">Check</button><button class="btn btn-reset" onclick="resetEx('12B')">Reset</button></div><div class="ex-score" id="score-12B"></div></div>
+<div class="exercise" id="ex-12D"><div class="exercise-header"><div class="exercise-title">12D — Comparatives and Superlatives</div><div class="exercise-tag">Comparison</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Comparative: adj + -er + als. Superlative: am + adj + -sten. Irregular: gut→besser→am besten.</div><div class="questions" data-ex="12D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Felix ist groß. Leon ist noch ___. (comparative)</div><input class="answer-field" type="text" data-answer="größer|grosser"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Das ist gut. Das andere ist noch ___. (comparative)</div><input class="answer-field" type="text" data-answer="besser"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix ist der ___ in der Klasse. (superlative of groß)</div><input class="answer-field" type="text" data-answer="größte|grosste|am größten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Das war das ___ Essen, das Leon je hatte. (superlative of gut)</div><input class="answer-field" type="text" data-answer="beste"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Leon ist ___ als Felix. (schnell — comparative)</div><input class="answer-field" type="text" data-answer="schneller"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('12D')">Check</button><button class="btn btn-reset" onclick="resetEx('12D')">Reset</button></div><div class="ex-score" id="score-12D"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(12,['12A','12B','12D'])">Grade Day 12</button>
+<div class="day-summary" id="day-summary-12"><div class="summary-title">Day 12 Complete</div><div class="summary-score" id="day-score-12"></div><div class="summary-verdict" id="day-verdict-12"></div></div>
+</div>
+
+<!-- DAY 13 -->
+<div class="day-panel" id="day-13">
+<div class="story-card"><div class="story-label">📖 Day 13</div><div class="story-text">Leon asked Felix if he could kiss him. Felix said he didn't need to ask. Reader, he kissed him.</div></div>
+<div class="exercise" id="ex-13A"><div class="exercise-header"><div class="exercise-title">13A — Polite Requests (Konjunktiv II)</div><div class="exercise-tag">Konjunktiv II</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>können→könnten, haben→hätten, dürfen→dürfte. These make requests softer and more polite.</div><div class="questions" data-ex="13A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Können Sie mir helfen? → ___ Sie mir helfen?</div><input class="answer-field" type="text" data-answer="könnten|konnten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Haben Sie einen Moment? → ___ Sie einen Moment?</div><input class="answer-field" type="text" data-answer="hätten|hatten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Können Sie das wiederholen? → ___ Sie das wiederholen?</div><input class="answer-field" type="text" data-answer="könnten|konnten"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Ich will einen Kaffee. → Ich ___ gerne einen Kaffee.</div><input class="answer-field" type="text" data-answer="möchte"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Darf ich fragen? → ___ ich fragen?</div><input class="answer-field" type="text" data-answer="dürfte"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('13A')">Check</button><button class="btn btn-reset" onclick="resetEx('13A')">Reset</button></div><div class="ex-score" id="score-13A"></div></div>
+<div class="exercise" id="ex-13B"><div class="exercise-header"><div class="exercise-title">13B — Hypotheticals: wenn…würde/wäre/hätte</div><div class="exercise-tag">Hypotheticals</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>wenn clause: Konjunktiv II at end. Main clause: würde/wäre/hätte.</div><div class="questions" data-ex="13B">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Wenn ich mehr Zeit ___, ___ ich mehr schlafen. (hätte / würde)</div><input class="answer-field" type="text" data-answer="hätte ... würde|hatte ... wurde|wenn ich mehr zeit hätte würde ich mehr schlafen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Wenn es nicht ___, ___ wir rausgehen. (regnete / würden)</div><input class="answer-field" type="text" data-answer="regnete ... würden|regnete ... wurden|wenn es nicht regnete würden wir rausgehen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Wenn ich du ___, ___ ich das nicht sagen. (wäre / würde)</div><input class="answer-field" type="text" data-answer="wäre ... würde|ware ... wurde|wenn ich du wäre würde ich das nicht sagen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wenn Felix mehr ___, ___ er nicht so müde. (schliefe / wäre)</div><input class="answer-field" type="text" data-answer="schliefe ... wäre|schliefe ... ware"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Wenn wir früher ___, ___ wir jetzt fertig. (angefangen hätten / wären)</div><input class="answer-field" type="text" data-answer="angefangen hätten ... wären|angefangen hatten ... waren"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('13B')">Check</button><button class="btn btn-reset" onclick="resetEx('13B')">Reset</button></div><div class="ex-score" id="score-13B"></div></div>
+<div class="exercise" id="ex-13C"><div class="exercise-header"><div class="exercise-title">13C — Wishes (ich wünschte)</div><div class="exercise-tag">Wishes</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>ich wünschte + wäre/hätte/könnte etc.</div><div class="questions" data-ex="13C">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">I wish I had more time.</div><input class="answer-field" type="text" data-answer="ich wünschte ich hätte mehr zeit|ich wunschte ich hatte mehr zeit"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">I wish you were here.</div><input class="answer-field" type="text" data-answer="ich wünschte du wärst hier|ich wunschte du warst hier"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">I wish that hadn't happened.</div><input class="answer-field" type="text" data-answer="ich wünschte das wäre nicht passiert|ich wunschte das ware nicht passiert"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">I wish I were in Berlin right now.</div><input class="answer-field" type="text" data-answer="ich wünschte ich wäre jetzt in berlin|ich wunschte ich ware jetzt in berlin"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">I wish I had known that.</div><input class="answer-field" type="text" data-answer="ich wünschte ich hätte das gewusst|ich wunschte ich hatte das gewusst"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('13C')">Check</button><button class="btn btn-reset" onclick="resetEx('13C')">Reset</button></div><div class="ex-score" id="score-13C"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(13,['13A','13B','13C'])">Grade Day 13</button>
+<div class="day-summary" id="day-summary-13"><div class="summary-title">Day 13 Complete</div><div class="summary-score" id="day-score-13"></div><div class="summary-verdict" id="day-verdict-13"></div></div>
+</div>
+
+<!-- DAY 14 -->
+<div class="day-panel" id="day-14">
+<div class="story-card"><div class="story-label">📖 Day 14 — The End</div><div class="story-text">One week later. The shelf is built (second attempt). Photos have been hung. Felix's books are on the shelves. Leon's chaos is everywhere else. Nobody is complaining.</div></div>
+<div class="exercise" id="ex-14A"><div class="exercise-header"><div class="exercise-title">14A — Active to Passive (Present)</div><div class="exercise-tag">Passive Voice</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>Passive formula: werden (conjugated) + past participle (at end). Object becomes subject.</div><div class="questions" data-ex="14A">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Der Mechaniker repariert das Auto. →</div><input class="answer-field" type="text" data-answer="das auto wird repariert"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Der Lehrer korrigiert den Fehler. →</div><input class="answer-field" type="text" data-answer="der fehler wird korrigiert"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Die Sekretärin schreibt den Brief. →</div><input class="answer-field" type="text" data-answer="der brief wird geschrieben"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Man baut ein neues Haus. →</div><input class="answer-field" type="text" data-answer="ein neues haus wird gebaut"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Felix plant das Projekt. →</div><input class="answer-field" type="text" data-answer="das projekt wird geplant"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('14A')">Check</button><button class="btn btn-reset" onclick="resetEx('14A')">Reset</button></div><div class="ex-score" id="score-14A"></div></div>
+<div class="exercise" id="ex-14D"><div class="exercise-header"><div class="exercise-title">14D — zu-Infinitive</div><div class="exercise-tag">zu + Infinitive</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>zu + infinitive after verbs like versuchen, vergessen, anfangen. Separable: auf+zu+stehen = aufzustehen.</div><div class="questions" data-ex="14D">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Leon versucht, Deutsch ___. (lernen)</div><input class="answer-field" type="text" data-answer="zu lernen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Es ist wichtig, pünktlich ___. (sein)</div><input class="answer-field" type="text" data-answer="zu sein"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Felix hat vergessen, das ___. (sagen)</div><input class="answer-field" type="text" data-answer="zu sagen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Es macht Spaß, Musik ___. (hören)</div><input class="answer-field" type="text" data-answer="zu hören|zu horen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Leon versucht, früh ___. (aufstehen — separable!)</div><input class="answer-field" type="text" data-answer="aufzustehen"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('14D')">Check</button><button class="btn btn-reset" onclick="resetEx('14D')">Reset</button></div><div class="ex-score" id="score-14D"></div></div>
+<div class="exercise" id="ex-14E"><div class="exercise-header"><div class="exercise-title">14E — Double Infinitive in Perfekt</div><div class="exercise-tag">Advanced Perfekt</div></div><div class="hint-box"><span class="hint-label">💡 Hint</span>With modals in Perfekt: NEVER use past participle of the modal. Use the INFINITIVE instead. haben + infinitive + modal infinitive.</div><div class="questions" data-ex="14E">
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt">Felix will das sehen. → Perfekt</div><input class="answer-field" type="text" data-answer="felix hat das sehen wollen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt">Leon muss lange warten. → Perfekt</div><input class="answer-field" type="text" data-answer="leon hat lange warten müssen|leon hat lange warten mussen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt">Ich kann nicht schlafen. → Perfekt</div><input class="answer-field" type="text" data-answer="ich habe nicht schlafen können|ich habe nicht schlafen konnen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt">Wir dürfen das nicht machen. → Perfekt</div><input class="answer-field" type="text" data-answer="wir haben das nicht machen dürfen|wir haben das nicht machen durfen"><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt">Du sollst früh aufstehen. → Perfekt</div><input class="answer-field" type="text" data-answer="du hast früh aufstehen sollen|du hast fruh aufstehen sollen"><div class="inline-feedback"></div></div></div>
+</div><div class="exercise-actions"><button class="btn btn-check" onclick="gradeEx('14E')">Check</button><button class="btn btn-reset" onclick="resetEx('14E')">Reset</button></div><div class="ex-score" id="score-14E"></div></div>
+<button class="day-grade-btn" onclick="gradeDay(14,['14A','14D','14E'])">Grade Day 14</button>
+<div class="day-summary" id="day-summary-14"><div class="summary-title">Day 14 Complete — Ende des Arbeitshefts 🎉</div><div class="summary-score" id="day-score-14"></div><div class="summary-verdict" id="day-verdict-14"></div></div>
+</div>
+</div><!-- end .content -->
+
+<script>
+// ── State ──
+const choiceState = {};
+const verdictState = {};
+
+// ── Normalise ──
+function norm(s) {
+  return s.toLowerCase().trim()
+    .replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u').replace(/ß/g,'ss')
+    .replace(/[.,!?]/g,'').replace(/\s+/g,' ');
+}
+
+function checkAns(user, answers) {
+  const n = norm(user);
+  return answers.split('|').some(a => {
+    const an = norm(a);
+    return n === an || n.includes(an) || an.includes(n);
+  });
+}
+
+// ── Choice buttons (weil/denn etc) ──
+function selectChoice(btn, exId, idx, val) {
+  const row = btn.closest('.q-row');
+  row.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  if (!choiceState[exId]) choiceState[exId] = {};
+  choiceState[exId][idx] = val;
+}
+
+// ── Verdict buttons (correct/wrong) ──
+function selectVerdict(btn, exId, qIdx, val) {
+  const row = btn.closest('.q-row');
+  row.querySelectorAll('.verdict-btn').forEach(b => b.classList.remove('sel-correct','sel-wrong'));
+  btn.classList.add(val === 'correct' ? 'sel-correct' : 'sel-wrong');
+  if (!verdictState[exId]) verdictState[exId] = {};
+  verdictState[exId][qIdx] = val;
+}
+
+// ── Grade standard text-input exercise ──
+function gradeEx(exId) {
+  const ex = document.getElementById('ex-' + exId);
+  const scoreEl = document.getElementById('score-' + exId);
+  const inputs = ex.querySelectorAll('.answer-field');
+  let correct = 0, total = inputs.length;
+  inputs.forEach(input => {
+    const fb = input.nextElementSibling;
+    const user = input.value.trim();
+    const answers = input.dataset.answer || '';
+    if (user && checkAns(user, answers)) {
+      correct++;
+      input.classList.add('correct'); input.classList.remove('wrong');
+      fb.className = 'inline-feedback show correct-fb';
+      fb.textContent = '✓ Correct';
+    } else {
+      input.classList.add('wrong'); input.classList.remove('correct');
+      fb.className = 'inline-feedback show wrong-fb';
+      fb.textContent = user ? ('✗ Answer: ' + answers.split('|')[0]) : '✗ No answer given';
+    }
+  });
+  scoreEl.className = 'ex-score show';
+  scoreEl.textContent = correct + ' / ' + total + ' correct';
+  updateProgress();
+  return { correct, total };
+}
+
+// ── Grade choice exercise (weil/denn type) ──
+function gradeChoiceEx(exId, correctAnswers) {
+  const ex = document.getElementById('ex-' + exId);
+  const scoreEl = document.getElementById('score-' + exId);
+  const rows = ex.querySelectorAll('.q-row');
+  let correct = 0;
+  rows.forEach((row, i) => {
+    const fb = row.querySelector('.inline-feedback');
+    const btns = row.querySelectorAll('.choice-btn');
+    const userVal = choiceState[exId] ? Object.entries(choiceState[exId]).find(([k,v]) => {
+      const rowBtns = [...btns].map(b => b.getAttribute('onclick'));
+      return rowBtns.some(o => o && o.includes("'" + k + "'"));
+    }) : null;
+    // Simpler: find which btn in this row is selected
+    let selectedVal = null;
+    btns.forEach(b => { if (b.classList.contains('selected')) selectedVal = b.textContent.trim(); });
+    const ca = correctAnswers[i];
+    if (selectedVal && selectedVal === ca) {
+      correct++;
+      btns.forEach(b => { if (b.textContent.trim() === ca) b.classList.add('correct-choice'); });
+      fb.className = 'inline-feedback show correct-fb';
+      fb.textContent = '✓ Correct — ' + ca;
+    } else {
+      btns.forEach(b => {
+        if (b.classList.contains('selected')) b.classList.add('wrong-choice');
+        if (b.textContent.trim() === ca) b.classList.add('correct-choice');
+      });
+      fb.className = 'inline-feedback show wrong-fb';
+      fb.textContent = selectedVal ? ('✗ Answer: ' + ca) : '✗ No answer selected';
+    }
+  });
+  scoreEl.className = 'ex-score show';
+  scoreEl.textContent = correct + ' / ' + rows.length + ' correct';
+  updateProgress();
+  return { correct, total: rows.length };
+}
+
+// ── Grade verdict exercise (correct/wrong) ──
+function gradeVerdictEx(exId, correctAnswers, explanations) {
+  const ex = document.getElementById('ex-' + exId);
+  const scoreEl = document.getElementById('score-' + exId);
+  const rows = ex.querySelectorAll('.q-row');
+  let correct = 0;
+  rows.forEach((row, i) => {
+    const fb = row.querySelector('.inline-feedback');
+    const userVal = verdictState[exId] ? verdictState[exId][i] : null;
+    const ca = correctAnswers[i];
+    if (userVal === ca) {
+      correct++;
+      fb.className = 'inline-feedback show correct-fb';
+      fb.textContent = '✓ ' + (explanations[i] || 'Correct');
+    } else {
+      fb.className = 'inline-feedback show wrong-fb';
+      fb.textContent = userVal ? ('✗ ' + (explanations[i] || 'Wrong')) : '✗ No answer selected';
+    }
+  });
+  scoreEl.className = 'ex-score show';
+  scoreEl.textContent = correct + ' / ' + rows.length + ' correct';
+  updateProgress();
+  return { correct, total: rows.length };
+}
+
+// ── Reset exercise ──
+function resetEx(exId) {
+  const ex = document.getElementById('ex-' + exId);
+  ex.querySelectorAll('.answer-field').forEach(input => {
+    input.value = '';
+    input.classList.remove('correct','wrong');
+    const fb = input.nextElementSibling;
+    if (fb) { fb.className = 'inline-feedback'; fb.textContent = ''; }
+  });
+  ex.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected','correct-choice','wrong-choice'));
+  ex.querySelectorAll('.verdict-btn').forEach(b => b.classList.remove('sel-correct','sel-wrong'));
+  ex.querySelectorAll('.inline-feedback').forEach(f => { f.className = 'inline-feedback'; f.textContent = ''; });
+  const scoreEl = document.getElementById('score-' + exId);
+  if (scoreEl) scoreEl.className = 'ex-score';
+  if (choiceState[exId]) choiceState[exId] = {};
+  if (verdictState[exId]) verdictState[exId] = {};
+  updateProgress();
+}
+
+// ── Grade full day ──
+function gradeDay(dayNum, exercises) {
+  let total = 0, correct = 0;
+  exercises.forEach(exId => {
+    // Detect type and grade accordingly
+    const ex = document.getElementById('ex-' + exId);
+    if (!ex) return;
+    // Check if it's a choice or verdict type — already graded inline, just collect scores
+    const scoreEl = document.getElementById('score-' + exId);
+    // Re-grade everything
+    let result = { correct: 0, total: 0 };
+    if (exId === '2C') {
+      result = gradeChoiceEx('2C', ['weil','denn','denn','weil','denn']);
+    } else if (exId === '2E') {
+      result = gradeVerdictEx('2E', ['wrong','correct','wrong','correct','correct'],
+        ['weil er ist müde → weil er müde IST','✓ dass er morgen kommt','Wenn Felix Zeit hat, KOMMT er.','✓ ob Felix schläft','✓ wo Felix wohnt']);
+    } else {
+      result = gradeEx(exId);
+    }
+    correct += result.correct;
+    total += result.total;
+  });
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const summary = document.getElementById('day-summary-' + dayNum);
+  document.getElementById('day-score-' + dayNum).textContent = correct + ' / ' + total + ' (' + pct + '%)';
+  let verdict;
+  if (pct >= 85) verdict = 'Strong. The grammar for this day is sitting properly. Move to the next day.';
+  else if (pct >= 65) verdict = 'Decent but gaps showing. Reread that day\'s chapter, then redo the exercises.';
+  else verdict = 'Go back and reread the chapter. Then redo the exercises. No shame — that\'s how it works.';
+  document.getElementById('day-verdict-' + dayNum).textContent = verdict;
+  summary.classList.add('show');
+  summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Switch day ──
+function switchDay(day, tab) {
+  document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+  const panel = document.getElementById('day-' + day);
+  if (panel) panel.classList.add('active');
+  tab.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Progress bar ──
+function updateProgress() {
+  const all = document.querySelectorAll('.answer-field');
+  const answered = [...all].filter(i => i.value.trim()).length;
+  const pct = all.length > 0 ? Math.round((answered / all.length) * 100) : 0;
+  document.getElementById('global-progress').style.width = pct + '%';
+  document.getElementById('global-count').textContent = answered + ' / ' + all.length + ' answered';
+}
+
+document.querySelectorAll('.answer-field').forEach(input => {
+  input.addEventListener('input', updateProgress);
+});
+
+updateProgress();
+</script>
+</body>
+</html>
