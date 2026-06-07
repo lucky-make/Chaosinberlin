@@ -82,6 +82,26 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;m
 .day-grade-btn{margin-top:36px;font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;padding:13px 28px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-weight:500}
 .day-grade-btn:hover{background:var(--gold-light)}
 @media(max-width:600px){.masthead,.content{padding-left:20px;padding-right:20px}.masthead-inner{flex-direction:column;gap:16px;align-items:flex-start}.title-block h1{font-size:2rem}.day-nav{padding:0 20px}.progress-block{text-align:left}.progress-bar-wrap{width:130px}}
+
+/* ── AUDIO SYSTEM ── */
+.speak-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:none;background:transparent;cursor:pointer;color:var(--gold);padding:0;margin-left:6px;vertical-align:middle;transition:opacity 0.15s;border-radius:2px;flex-shrink:0}
+.speak-btn:hover{opacity:0.7}
+.speak-btn.speaking{color:var(--gold-light);animation:pulse-speak 0.7s infinite alternate}
+.speak-btn svg{width:14px;height:14px;fill:currentColor}
+@keyframes pulse-speak{from{opacity:1}to{opacity:0.4}}
+.story-card .speak-btn{color:rgba(212,160,23,0.8);width:26px;height:26px}
+.story-card .speak-btn svg{width:16px;height:16px}
+.audio-bar{position:fixed;bottom:24px;right:24px;background:var(--ink);color:var(--paper);padding:10px 16px;display:flex;align-items:center;gap:12px;z-index:1000;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:1px;border-left:3px solid var(--gold);opacity:0;pointer-events:none;transition:opacity 0.3s;max-width:300px}
+.audio-bar.visible{opacity:1;pointer-events:auto}
+.audio-bar-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#aaa}
+.audio-bar-stop{background:none;border:1px solid #444;color:#aaa;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.65rem;padding:3px 8px;transition:all 0.15s;letter-spacing:1px}
+.audio-bar-stop:hover{border-color:var(--gold);color:var(--gold)}
+.q-prompt .speak-wrap{display:inline-flex;align-items:center}
+
+/* ── SAVE INDICATOR ── */
+.save-dot{width:6px;height:6px;border-radius:50%;background:var(--grey);display:inline-block;margin-left:8px;transition:background 0.3s}
+.save-dot.saved{background:#1a5c2a}
+.save-dot.saving{background:var(--gold-light)}
 </style>
 </head>
 <body>
@@ -94,7 +114,7 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;m
 <div class="progress-block">
 <div class="progress-label">Overall Progress</div>
 <div class="progress-bar-wrap"><div class="progress-bar-fill" id="global-progress" style="width:0%"></div></div>
-<div class="progress-count" id="global-count">0 / 0 answered</div>
+<div class="progress-count" id="global-count">0 / 0 answered<span class="save-dot" id="save-dot" title="Auto-save status"></span></div>
 </div>
 </div>
 </div>
@@ -259,11 +279,11 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;m
 <div class="exercise-header"><div class="exercise-title">2E — Correct or Wrong?</div><div class="exercise-tag">Error Spotting</div></div>
 <div class="hint-box"><span class="hint-label">💡 Hint</span>Does the end-kick word have the verb at the end of ITS clause?</div>
 <div class="questions" data-ex="2E" data-type="verdict" data-answers="wrong|correct|wrong|correct|correct">
-<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>Leon bleibt zu Hause, weil er ist müde.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',0,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',0,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
-<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>Felix sagt, dass er morgen kommt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',1,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',1,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
-<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Wenn Felix Zeit hat, er kommt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',2,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',2,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
-<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>Leon fragt, ob Felix schläft.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',3,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',3,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
-<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>Ich weiß nicht, wo Felix wohnt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',4,'correct')">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',4,'wrong')">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">1.</div><div class="q-content"><div class="q-prompt"><em>Leon bleibt zu Hause, weil er ist müde.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',0,'correct')" data-val="correct">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',0,'wrong')" data-val="wrong">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">2.</div><div class="q-content"><div class="q-prompt"><em>Felix sagt, dass er morgen kommt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',1,'correct')" data-val="correct">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',1,'wrong')" data-val="wrong">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">3.</div><div class="q-content"><div class="q-prompt"><em>Wenn Felix Zeit hat, er kommt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',2,'correct')" data-val="correct">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',2,'wrong')" data-val="wrong">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">4.</div><div class="q-content"><div class="q-prompt"><em>Leon fragt, ob Felix schläft.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',3,'correct')" data-val="correct">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',3,'wrong')" data-val="wrong">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
+<div class="q-row"><div class="q-num">5.</div><div class="q-content"><div class="q-prompt"><em>Ich weiß nicht, wo Felix wohnt.</em></div><div class="verdict-btns"><button class="verdict-btn" onclick="selectVerdict(this,'2E',4,'correct')" data-val="correct">✅ Correct</button><button class="verdict-btn" onclick="selectVerdict(this,'2E',4,'wrong')" data-val="wrong">❌ Wrong</button></div><div class="inline-feedback"></div></div></div>
 </div>
 <div class="exercise-actions"><button class="btn btn-check" onclick="gradeVerdictEx('2E',['wrong','correct','wrong','correct','correct'],['weil er ist müde → weil er müde IST','✓ dass er morgen kommt','Wenn Felix Zeit hat, KOMMT er.','✓ ob Felix schläft','✓ wo Felix wohnt'])">Check</button><button class="btn btn-reset" onclick="resetEx('2E')">Reset</button></div>
 <div class="ex-score" id="score-2E"></div>
@@ -695,6 +715,13 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;m
 </div>
 </div><!-- end .content -->
 
+<!-- AUDIO BAR -->
+<div class="audio-bar" id="audio-bar">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color:var(--gold);flex-shrink:0"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+  <span class="audio-bar-text" id="audio-bar-text">—</span>
+  <button class="audio-bar-stop" onclick="stopSpeech()">■ Stop</button>
+</div>
+
 <script>
 // ── State ──
 const choiceState = {};
@@ -891,14 +918,327 @@ function updateProgress() {
   const answered = [...all].filter(i => i.value.trim()).length;
   const pct = all.length > 0 ? Math.round((answered / all.length) * 100) : 0;
   document.getElementById('global-progress').style.width = pct + '%';
-  document.getElementById('global-count').textContent = answered + ' / ' + all.length + ' answered';
+  const countEl = document.getElementById('global-count');
+  countEl.innerHTML = answered + ' / ' + all.length + ' answered<span class="save-dot" id="save-dot" title="Auto-save status"></span>';
 }
 
 document.querySelectorAll('.answer-field').forEach(input => {
-  input.addEventListener('input', updateProgress);
+  input.addEventListener('input', () => { updateProgress(); scheduleSave(); });
 });
 
 updateProgress();
+
+// ════════════════════════════════════════════════
+// ── AUDIO SYSTEM (Web Speech API) ──
+// ════════════════════════════════════════════════
+
+const SPEAK_ICON = `<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+
+let currentUtterance = null;
+let currentSpeakBtn = null;
+let deVoice = null;
+
+// Pre-select a German voice once voices load
+function loadVoices() {
+  const voices = window.speechSynthesis.getVoices();
+  // Prefer female German voices for clarity
+  deVoice = voices.find(v => v.lang === 'de-DE' && /female|anna|petra|marlene/i.test(v.name))
+    || voices.find(v => v.lang === 'de-DE')
+    || voices.find(v => v.lang.startsWith('de'));
+}
+if (window.speechSynthesis) {
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function stopSpeech() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (currentSpeakBtn) { currentSpeakBtn.classList.remove('speaking'); currentSpeakBtn = null; }
+  document.getElementById('audio-bar').classList.remove('visible');
+}
+
+function speakText(text, btn) {
+  if (!window.speechSynthesis) { alert('Your browser does not support speech synthesis.'); return; }
+  // Strip HTML tags, arrows, etc.
+  const clean = text.replace(/<[^>]+>/g,'').replace(/→|💡.*/g,'').replace(/\s+/g,' ').trim();
+  if (!clean) return;
+  stopSpeech();
+
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = 'de-DE';
+  utt.rate = 0.82;
+  utt.pitch = 1.0;
+  if (deVoice) utt.voice = deVoice;
+
+  utt.onstart = () => {
+    currentSpeakBtn = btn;
+    btn.classList.add('speaking');
+    const bar = document.getElementById('audio-bar');
+    document.getElementById('audio-bar-text').textContent = clean.length > 40 ? clean.slice(0,40)+'…' : clean;
+    bar.classList.add('visible');
+  };
+  utt.onend = utt.onerror = () => {
+    btn.classList.remove('speaking');
+    currentSpeakBtn = null;
+    document.getElementById('audio-bar').classList.remove('visible');
+  };
+
+  currentUtterance = utt;
+  window.speechSynthesis.speak(utt);
+}
+
+function makeSpeakBtn(text) {
+  const btn = document.createElement('button');
+  btn.className = 'speak-btn';
+  btn.title = 'Anhören (Listen)';
+  btn.innerHTML = SPEAK_ICON;
+  btn.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    speakText(text, btn);
+  });
+  return btn;
+}
+
+// Inject speak buttons into story cards
+document.querySelectorAll('.story-text').forEach(el => {
+  const text = el.textContent;
+  const btn = makeSpeakBtn(text);
+  el.appendChild(btn);
+});
+
+// Inject speak buttons next to German text in q-prompts (the <em> tags)
+document.querySelectorAll('.q-prompt em').forEach(em => {
+  const text = em.textContent;
+  const btn = makeSpeakBtn(text);
+  em.parentNode.insertBefore(btn, em.nextSibling);
+});
+
+// Inject speak buttons next to plain German sentences in q-prompts (no em tag — text before <strong>)
+document.querySelectorAll('.q-prompt').forEach(prompt => {
+  // Find nodes with German sentence text (starts with capital, contains German chars or common words)
+  const textNodes = [...prompt.childNodes].filter(n =>
+    n.nodeType === 3 && /^[A-ZÄÖÜ]/.test(n.textContent.trim()) && n.textContent.trim().length > 5
+  );
+  textNodes.forEach(node => {
+    const sentence = node.textContent.replace(/→.*$/,'').trim();
+    if (sentence.length > 4) {
+      const btn = makeSpeakBtn(sentence);
+      node.parentNode.insertBefore(btn, node.nextSibling);
+    }
+  });
+});
+
+// Inline answer speak button: speak the CORRECT answer when revealed
+document.querySelectorAll('.answer-field').forEach(input => {
+  const firstAnswer = (input.dataset.answer || '').split('|')[0];
+  if (firstAnswer) {
+    const btn = makeSpeakBtn(firstAnswer);
+    btn.style.marginLeft = '6px';
+    btn.title = 'Antwort anhören';
+    input.parentNode.insertBefore(btn, input.nextSibling);
+  }
+});
+
+// ════════════════════════════════════════════════
+// ── LOCALSTORAGE PROGRESS SAVING ──
+// ════════════════════════════════════════════════
+
+const SAVE_KEY = 'cib_workbook_v2';
+let saveTimer = null;
+
+function getSaveDot() { return document.getElementById('save-dot'); }
+
+function scheduleSave() {
+  const dot = getSaveDot();
+  if (dot) { dot.className = 'save-dot saving'; }
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveAll, 900);
+}
+
+function saveAll() {
+  try {
+    const data = {};
+
+    // Save all answer fields
+    const fields = {};
+    document.querySelectorAll('.answer-field').forEach((input, i) => {
+      if (input.value.trim()) fields[i] = input.value;
+    });
+    data.fields = fields;
+
+    // Save choice states
+    data.choices = choiceState;
+    data.verdicts = verdictState;
+
+    // Save which day tab is active
+    const activeTab = document.querySelector('.day-tab.active');
+    if (activeTab) {
+      const tabs = [...document.querySelectorAll('.day-tab')];
+      data.activeDay = tabs.indexOf(activeTab) + 1;
+    }
+
+    // Save exercise scores (which exercises have been graded)
+    const scores = {};
+    document.querySelectorAll('.ex-score.show').forEach(el => {
+      scores[el.id] = el.textContent;
+    });
+    data.scores = scores;
+
+    // Save day summaries shown
+    const summaries = {};
+    document.querySelectorAll('.day-summary.show').forEach(el => {
+      summaries[el.id] = {
+        score: el.querySelector('[id^="day-score"]')?.textContent || '',
+        verdict: el.querySelector('[id^="day-verdict"]')?.textContent || ''
+      };
+    });
+    data.summaries = summaries;
+
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+
+    const dot = getSaveDot();
+    if (dot) {
+      dot.className = 'save-dot saved';
+      setTimeout(() => { if (dot) dot.className = 'save-dot'; }, 2000);
+    }
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
+function loadAll() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+
+    // Restore answer fields
+    if (data.fields) {
+      const inputs = document.querySelectorAll('.answer-field');
+      Object.entries(data.fields).forEach(([i, val]) => {
+        if (inputs[i]) inputs[i].value = val;
+      });
+    }
+
+    // Restore choice states
+    if (data.choices) Object.assign(choiceState, data.choices);
+    if (data.verdicts) Object.assign(verdictState, data.verdicts);
+
+    // Restore choice button visual selections
+    if (data.choices) {
+      Object.entries(data.choices).forEach(([exId, vals]) => {
+        const ex = document.getElementById('ex-' + exId);
+        if (!ex) return;
+        ex.querySelectorAll('.choice-btn').forEach(btn => {
+          const m = btn.getAttribute('onclick').match(/selectChoice\(this,'[^']+',(\d+),'([^']+)'\)/);
+          if (!m) return;
+          const idx = m[1];
+          const val = m[2];
+          if (vals[idx] === val) btn.classList.add('selected');
+        });
+      });
+    }
+
+    // Restore verdict button visual selections
+    if (data.verdicts) {
+      Object.entries(data.verdicts).forEach(([exId, vals]) => {
+        const ex = document.getElementById('ex-' + exId);
+        if (!ex) return;
+        ex.querySelectorAll('.q-row').forEach((row, i) => {
+          if (vals[i]) {
+            row.querySelectorAll('.verdict-btn').forEach(btn => {
+              if (btn.dataset.val === vals[i]) {
+                btn.classList.add(vals[i] === 'correct' ? 'sel-correct' : 'sel-wrong');
+              }
+            });
+          }
+        });
+      });
+    }
+
+    // Restore scores
+    if (data.scores) {
+      Object.entries(data.scores).forEach(([id, text]) => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = text; el.className = 'ex-score show'; }
+      });
+    }
+
+    // Restore day summaries
+    if (data.summaries) {
+      Object.entries(data.summaries).forEach(([id, d]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const scoreEl = el.querySelector('[id^="day-score"]');
+        const verdictEl = el.querySelector('[id^="day-verdict"]');
+        if (scoreEl) scoreEl.textContent = d.score;
+        if (verdictEl) verdictEl.textContent = d.verdict;
+        el.classList.add('show');
+      });
+    }
+
+    // Restore active day tab
+    if (data.activeDay && data.activeDay > 1) {
+      const tabs = document.querySelectorAll('.day-tab');
+      const tab = tabs[data.activeDay - 1];
+      if (tab) switchDay(data.activeDay, tab);
+    }
+
+    updateProgress();
+
+    const dot = getSaveDot();
+    if (dot) dot.className = 'save-dot saved';
+
+  } catch(e) { console.warn('Load failed:', e); }
+}
+
+// Patch gradeEx, gradeChoiceEx, gradeVerdictEx to auto-save after grading
+const _origGradeEx = gradeEx;
+window.gradeEx = function(exId) {
+  const r = _origGradeEx(exId);
+  scheduleSave();
+  return r;
+};
+const _origGradeChoiceEx = gradeChoiceEx;
+window.gradeChoiceEx = function(exId, ca) {
+  const r = _origGradeChoiceEx(exId, ca);
+  scheduleSave();
+  return r;
+};
+const _origGradeVerdictEx = gradeVerdictEx;
+window.gradeVerdictEx = function(exId, ca, ex) {
+  const r = _origGradeVerdictEx(exId, ca, ex);
+  scheduleSave();
+  return r;
+};
+const _origGradeDay = gradeDay;
+window.gradeDay = function(dayNum, exercises) {
+  _origGradeDay(dayNum, exercises);
+  scheduleSave();
+};
+const _origSwitchDay = switchDay;
+window.switchDay = function(day, tab) {
+  _origSwitchDay(day, tab);
+  scheduleSave();
+};
+
+// Reset clears saved data for that exercise and re-saves
+const _origResetEx = resetEx;
+window.resetEx = function(exId) {
+  _origResetEx(exId);
+  scheduleSave();
+};
+
+// Clear all progress button (add to console or you can expose it)
+window.clearAllProgress = function() {
+  if (confirm('Clear ALL saved progress? This cannot be undone.')) {
+    localStorage.removeItem(SAVE_KEY);
+    location.reload();
+  }
+};
+
+// Load saved data on startup
+document.addEventListener('DOMContentLoaded', loadAll);
+// Also try immediately in case DOM is already ready
+if (document.readyState !== 'loading') loadAll();
 </script>
 </body>
 </html>
